@@ -161,6 +161,14 @@ doJobCollection.JobCollection = function(jc, output = NULL) {
       update$error = stri_trunc(stri_trim_both(as.character(result)), 500L, " [truncated]")
     } else {
       catf("\n### [bt%s]: Job terminated successfully [batchtools job.id=%i]", now(), id)
+      # Conditions get huge. Best place I could find to clear it is here
+      print("Clearing conditions for space")
+      if(class(result) == "FutureResult"){
+        result$conditions = purrr::map(result$conditions, ~list(condition=paste0(.), signaled=0))
+        print("Cleared")
+      }else{
+        print("Not cleared")
+      }
       writeRDS(result, file = getResultFiles(jc, id), compress = jc$compress)
     }
     buf$add(i, update)
